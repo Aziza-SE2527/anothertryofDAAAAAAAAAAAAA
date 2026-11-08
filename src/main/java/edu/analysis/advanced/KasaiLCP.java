@@ -3,13 +3,19 @@ package edu.analysis.advanced;
 import java.util.Arrays;
 
 public class KasaiLCP {
-    public record LCPResult(int[] lcp, long charComparisons) {}
+    public static class LCPResult {
+        public final int[] lcp;
+        public final long charComparisons;
+
+        public LCPResult(int[] lcp, long charComparisons) {
+            this.lcp = lcp;
+            this.charComparisons = charComparisons;
+        }
+    }
 
     // Builds LCP array in O(n) time from string and suffix array
-    public static LCPResult buildLCP(String s, int[] sa)
-    {
-        if (s == null || sa == null || s.length() != sa.length)
-        {
+    public static LCPResult buildLCP(String s, int[] sa) {
+        if (s == null || sa == null || s.length() != sa.length) {
             throw new IllegalArgumentException("Invalid input");
         }
         int n = s.length();
@@ -20,12 +26,10 @@ public class KasaiLCP {
 
         long comparisons = 0;
         int k = 0;
-        for (int i = 0; i < n; i++)
-        {
+        for (int i = 0; i < n; i++) {
             if (rank[i] == n - 1) { k = 0; continue; }
             int j = sa[rank[i] + 1];
-            while (i + k < n && j + k < n)
-            {
+            while (i + k < n && j + k < n) {
                 comparisons++;
                 if (s.charAt(i + k) == s.charAt(j + k)) k++;
                 else break;
@@ -36,12 +40,14 @@ public class KasaiLCP {
         return new LCPResult(lcp, comparisons);
     }
 
-    // Simple suffix array generator for testing (not timed in Kasai benchmark)
+    // Helper to build suffix array for tests/benchmarks (excluded from Kasai timing)
     public static int[] buildSimpleSuffixArray(String s) {
         int n = s.length();
         Integer[] idx = new Integer[n];
         for (int i = 0; i < n; i++) idx[i] = i;
         Arrays.sort(idx, (a, b) -> s.substring(a).compareTo(s.substring(b)));
-        return Arrays.stream(idx).mapToInt(Integer::intValue).toArray();
+        int[] sa = new int[n];
+        for (int i = 0; i < n; i++) sa[i] = idx[i];
+        return sa;
     }
 }
